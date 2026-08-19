@@ -1,0 +1,76 @@
+#include <stdio.h>
+#include <stdlib.h>
+typedef struct Node {
+    int key;
+    int value;
+    struct Node* next;
+} Node;
+typedef struct {
+    int size;
+    Node** table;
+} HashTable;
+
+HashTable* createTable(int size) {
+    HashTable* ht = (HashTable*)malloc(sizeof(HashTable));
+    ht->size = size;
+    ht->table = (Node**)calloc(size, sizeof(Node*));
+    return ht;
+}
+int hash(int key, int size) {
+    int h = key % size;
+    return h < 0 ? h + size : h;
+}
+
+void insert(HashTable* ht, int key, int value) {
+    int index = hash(key, ht->size);
+    Node* newNode = (Node*)malloc(sizeof(Node));
+    newNode->key = key;
+    newNode->value = value;
+    newNode->next = ht->table[index];
+    ht->table[index] = newNode;
+}
+int search(HashTable* ht, int key) {
+    int index = hash(key, ht->size);
+    Node* curr = ht->table[index];
+    while (curr != NULL) {
+        if (curr->key == key) {
+            return curr->value;
+        }
+        curr = curr->next;
+    }
+    return -1;
+}
+void freeTable(HashTable* ht) {
+    for (int i = 0; i < ht->size; i++) {
+        Node* curr = ht->table[i];
+        while (curr != NULL) {
+            Node* temp = curr;
+            curr = curr->next;
+            free(temp);
+        }
+    }
+    free(ht->table);
+    free(ht);
+}
+int* twoSum(int* nums, int numsSize, int target, int* returnSize) {
+    int tableSize = numsSize * 2; 
+    HashTable* ht = createTable(tableSize);
+    
+    int* result = (int*)malloc(2 * sizeof(int));
+    *returnSize = 0;
+
+    for (int i = 0; i < numsSize; i++) {
+        int complement = target - nums[i];
+        int complementIndex = search(ht, complement);
+        if (complementIndex != -1) {
+            result[0] = complementIndex;
+            result[1] = i;
+            *returnSize = 2;
+            break;
+        }
+        insert(ht, nums[i], i);
+    }
+
+    freeTable(ht);
+    return result;
+}
