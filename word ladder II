@@ -1,0 +1,128 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+
+bool isAdjacent(const char* a, const char* b, int len) {
+    int diff = 0;
+    for (int i = 0; i < len; i++) {
+        if (a[i] != b[i]) {
+            diff++;
+            if (diff > 1) {
+                return false;
+            }
+        }
+    }
+    return diff == 1;
+}
+
+void dfs(int u, int target, int currDist, int* dist, int** adj, int* adjSizes, 
+         char** dict, char*** result, int* returnSize, int** returnColumnSizes, 
+         int* path, int pathLen) {
+    path[pathLen] = u;
+    
+    if (u == target) {
+        result[*returnSize] = (char**)malloc((pathLen + 1) * sizeof(char*));
+        for (int i = 0; i <= pathLen; i++) {
+            result[*returnSize][i] = dict[path[i]];
+        }
+        (*returnColumnSizes)[*returnSize] = pathLen + 1;
+        (*returnSize)++;
+        return;
+    }
+
+    for (int i = 0; i < adjSizes[u]; i++) {
+        int v = adj[u][i];
+        if (dist[v] == currDist - 1) {
+            dfs(v, target, currDist - 1, dist, adj, adjSizes, dict, result, returnSize, returnColumnSizes, path, pathLen + 1);
+        }
+    }
+}
+
+char*** findLadders(char* beginWord, char* endWord, char** wordList, int wordListSize, int* returnSize, int** returnColumnSizes) {
+    *returnSize = 0;
+    int wordLen = strlen(beginWord);
+    int endIdx = -1;
+    
+    for (int i = 0; i < wordListSize; i++) {
+        if (strcmp(wordList[i], endWord) == 0) {
+            endIdx = i;
+            break;
+        }
+    }
+    
+    if (endIdx == -1) {
+        *returnColumnSizes = NULL;
+        return NULL;
+    }
+
+    int totalWords = wordListSize + 1;
+    char** dict = (char**)malloc(totalWords * sizeof(char*));
+    for (int i = 0; i < wordListSize; i++) {
+        dict[i] = wordList[i];
+    }
+    dict[wordListSize] = beginWord;
+    int beginIdx = wordListSize;
+
+    int** adj = (int**)malloc(totalWords * sizeof(int*));
+    int* adjSizes = (int*)calloc(totalWords, sizeof(int));
+    for (int i = 0; i < totalWords; i++) {
+        adj[i] = (int*)malloc(totalWords * sizeof(int));
+    }
+
+    for (int i = 0; i < totalWords; i++) {
+        for (int j = i + 1; j < totalWords; j++) {
+            if (isAdjacent(dict[i], dict[j], wordLen)) {
+                adj[i][adjSizes[i]++] = j;
+                adj[j][adjSizes[j]++] = i;
+            }
+        }
+    }
+
+    int* dist = (int*)malloc(totalWords * sizeof(int));
+    for (int i = 0; i < totalWords; i++) {
+        dist[i] = -1;
+    }
+
+    int* queue = (int*)malloc(totalWords * sizeof(int));
+    int head = 0, tail = 0;
+
+    queue[tail++] = endIdx;
+    dist[endIdx] = 0;
+
+    while (head < tail) {
+        int u = queue[head++];
+        for (int i = 0; i < adjSizes[u]; i++) {
+            int v = adj[u][i];
+            if (dist[v] == -1) {
+                dist[v] = dist[u] + 1;
+                queue[tail++] = v;
+            }
+        }
+    }
+
+    free(queue);
+
+    if (dist[beginIdx] == -1) {
+        for (int i = 0; i < totalWords; i++) free(adj[i]);
+        free(adj); free(adjSizes); free(dist); free(dict);
+        *returnColumnSizes = NULL;
+        return NULL;
+    }
+
+    int maxSequences = 100005;
+    char*** result = (char***)malloc(maxSequences * sizeof(char**));
+    *returnColumnSizes = (int*)malloc(maxSequences * sizeof(int));
+    int* path = (int*)malloc(totalWords * sizeof(int));
+
+    dfs(beginIdx, endIdx, dist[beginIdx], dist, adj, adjSizes, dict, result, returnSize, returnColumnSizes, path, 0);
+
+    free(path);
+    for (int i = 0; i < totalWords; i++) free(adj[i]);
+    free(adj);
+    free(adjSizes);
+    free(dist);
+    free(dict);
+
+    return result;
+}
