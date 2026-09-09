@@ -1,0 +1,79 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+
+bool isAdjacent(const char* a, const char* b, int len) {
+    int diff = 0;
+    for (int i = 0; i < len; i++) {
+        if (a[i] != b[i]) {
+            diff++;
+            if (diff > 1) {
+                return false;
+            }
+        }
+    }
+    return diff == 1;
+}
+
+int ladderLength(char* beginWord, char* endWord, char** wordList, int wordListSize) {
+    int wordLen = strlen(beginWord);
+    int endIdx = -1;
+
+    for (int i = 0; i < wordListSize; i++) {
+        if (strcmp(wordList[i], endWord) == 0) {
+            endIdx = i;
+            break;
+        }
+    }
+
+    if (endIdx == -1) {
+        return 0;
+    }
+
+    int totalWords = wordListSize + 1;
+    char** dict = (char**)malloc(totalWords * sizeof(char*));
+    for (int i = 0; i < wordListSize; i++) {
+        dict[i] = wordList[i];
+    }
+    dict[wordListSize] = beginWord;
+    int beginIdx = wordListSize;
+
+    int* queue = (int*)malloc(totalWords * sizeof(int));
+    int* dist = (int*)malloc(totalWords * sizeof(int));
+    bool* visited = (bool*)calloc(totalWords, sizeof(bool));
+
+    int head = 0, tail = 0;
+
+    queue[tail++] = beginIdx;
+    dist[beginIdx] = 1;
+    visited[beginIdx] = true;
+
+    while (head < tail) {
+        int u = queue[head++];
+        int currentDist = dist[u];
+
+        if (u == endIdx) {
+            int result = currentDist;
+            free(dict);
+            free(queue);
+            free(dist);
+            free(visited);
+            return result;
+        }
+
+        for (int v = 0; v < totalWords; v++) {
+            if (!visited[v] && isAdjacent(dict[u], dict[v], wordLen)) {
+                visited[v] = true;
+                dist[v] = currentDist + 1;
+                queue[tail++] = v;
+            }
+        }
+    }
+
+    free(dict);
+    free(queue);
+    free(dist);
+    free(visited);
+    return 0;
+}
