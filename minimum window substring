@@ -1,0 +1,71 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <limits.h>
+
+char* minWindow(char* s, char* t) {
+    int sLen = strlen(s);
+    int tLen = strlen(t);
+
+    if (sLen == 0 || tLen == 0 || sLen < tLen) {
+        return "";
+    }
+
+    int tCount[128] = {0};
+    int windowCount[128] = {0};
+
+    for (int i = 0; i < tLen; i++) {
+        tCount[(unsigned char)t[i]]++;
+    }
+
+    int required = 0;
+    for (int i = 0; i < 128; i++) {
+        if (tCount[i] > 0) {
+            required++;
+        }
+    }
+
+    int left = 0;
+    int right = 0;
+    int formed = 0;
+
+    int minLen = INT_MAX;
+    int minLeft = 0;
+
+    while (right < sLen) {
+        char c = s[right];
+        windowCount[(unsigned char)c]++;
+
+        if (tCount[(unsigned char)c] > 0 && windowCount[(unsigned char)c] == tCount[(unsigned char)c]) {
+            formed++;
+        }
+
+        while (left <= right && formed == required) {
+            c = s[left];
+
+            if (right - left + 1 < minLen) {
+                minLen = right - left + 1;
+                minLeft = left;
+            }
+
+            windowCount[(unsigned char)c]--;
+            if (tCount[(unsigned char)c] > 0 && windowCount[(unsigned char)c] < tCount[(unsigned char)c]) {
+                formed--;
+            }
+
+            left++;
+        }
+
+        right++;
+    }
+
+    if (minLen == INT_MAX) {
+        return "";
+    }
+
+    char* result = (char*)malloc((minLen + 1) * sizeof(char));
+    strncpy(result, s + minLeft, minLen);
+    result[minLen] = '\0';
+
+    return result;
+}
