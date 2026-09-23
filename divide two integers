@@ -1,0 +1,37 @@
+int divide(int dividend, int divisor) {
+    if (dividend == -2147483648 && divisor == -1) {
+        return 2147483647;
+    }
+    
+    int sign = 1;
+    if ((dividend > 0 && divisor < 0) || (dividend < 0 && divisor > 0)) {
+        sign = -1;
+    }
+    
+    unsigned int absDividend = dividend == -2147483648 ? 2147483648U : (dividend < 0 ? 0U - (unsigned int)dividend : (unsigned int)dividend);
+    unsigned int absDivisor = divisor == -2147483648 ? 2147483648U : (divisor < 0 ? 0U - (unsigned int)divisor : (unsigned int)divisor);
+    
+    unsigned int quotient = 0;
+    
+    while (absDividend >= absDivisor) {
+        unsigned int tempDivisor = absDivisor;
+        unsigned int multiple = 1;
+        
+        while (tempDivisor <= 2147483647U && absDividend >= tempDivisor + tempDivisor) {
+            tempDivisor = tempDivisor + tempDivisor;
+            multiple = multiple + multiple;
+        }
+        
+        absDividend = absDividend - tempDivisor;
+        quotient = quotient + multiple;
+    }
+    
+    if (sign == -1) {
+        if (quotient == 2147483648U) {
+            return -2147483648;
+        }
+        return -(int)quotient;
+    }
+    
+    return (int)quotient;
+}
