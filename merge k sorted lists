@@ -1,0 +1,44 @@
+struct ListNode* mergeTwo(struct ListNode* list1, struct ListNode* list2) {
+    struct ListNode dummy;
+    dummy.val = 0;
+    dummy.next = ((void*)0);
+    struct ListNode* tail = &dummy;
+    
+    while (list1 != ((void*)0) && list2 != ((void*)0)) {
+        if (list1->val <= list2->val) {
+            tail->next = list1;
+            list1 = list1->next;
+        } else {
+            tail->next = list2;
+            list2 = list2->next;
+        }
+        tail = tail->next;
+    }
+    
+    if (list1 != ((void*)0)) {
+        tail->next = list1;
+    } else {
+        tail->next = list2;
+    }
+    
+    return dummy.next;
+}
+
+struct ListNode* mergeKLists(struct ListNode** lists, int listsSize) {
+    if (listsSize == 0) {
+        return ((void*)0);
+    }
+    
+    while (listsSize > 1) {
+        int i = 0;
+        int j = listsSize - 1;
+        while (i < j) {
+            lists[i] = mergeTwo(lists[i], lists[j]);
+            i++;
+            j--;
+        }
+        listsSize = (listsSize + 1) / 2;
+    }
+    
+    return lists[0];
+}
