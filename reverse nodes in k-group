@@ -1,0 +1,45 @@
+struct ListNode* reverseKGroup(struct ListNode* head, int k) {
+    if (head == ((void*)0) || k == 1) {
+        return head;
+    }
+
+    struct ListNode dummy;
+    dummy.val = 0;
+    dummy.next = head;
+
+    struct ListNode* before = &dummy;
+    struct ListNode* after = head;
+
+    while (1) {
+        struct ListNode* cursor = before;
+        int count = 0;
+
+        while (count < k && cursor->next != ((void*)0)) {
+            cursor = cursor->next;
+            count++;
+        }
+
+        if (count < k) {
+            break;
+        }
+
+        after = cursor->next;
+
+        struct ListNode* prev = after;
+        struct ListNode* curr = before->next;
+        struct ListNode* nextNode = ((void*)0);
+
+        while (curr != after) {
+            nextNode = curr->next;
+            curr->next = prev;
+            prev = curr;
+            curr = nextNode;
+        }
+
+        struct ListNode* newBefore = before->next;
+        before->next = prev;
+        before = newBefore;
+    }
+
+    return dummy.next;
+}
