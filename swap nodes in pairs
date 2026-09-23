@@ -1,0 +1,20 @@
+struct ListNode* swapPairs(struct ListNode* head) {
+    struct ListNode dummy;
+    dummy.val = 0;
+    dummy.next = head;
+    
+    struct ListNode* point = &dummy;
+    
+    while (point->next != ((void*)0) && point->next->next != ((void*)0)) {
+        struct ListNode* swap1 = point->next;
+        struct ListNode* swap2 = point->next->next;
+        
+        swap1->next = swap2->next;
+        swap2->next = swap1;
+        point->next = swap2;
+        
+        point = swap1;
+    }
+    
+    return dummy.next;
+}
