@@ -1,0 +1,14 @@
+int removeElement(int* nums, int numsSize, int val) {
+    int writeIndex = 0;
+    int readIndex = 0;
+    
+    while (readIndex < numsSize) {
+        if (nums[readIndex] != val) {
+            nums[writeIndex] = nums[readIndex];
+            writeIndex++;
+        }
+        readIndex++;
+    }
+    
+    return writeIndex;
+}
