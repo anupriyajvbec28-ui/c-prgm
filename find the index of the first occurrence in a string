@@ -1,0 +1,33 @@
+int strStr(char* haystack, char* needle) {
+    int hLen = 0;
+    while (haystack[hLen] != 0) {
+        hLen++;
+    }
+    
+    int nLen = 0;
+    while (needle[nLen] != 0) {
+        nLen++;
+    }
+    
+    if (nLen == 0) {
+        return 0;
+    }
+    
+    if (hLen < nLen) {
+        return -1;
+    }
+    
+    int i = 0;
+    while (i <= hLen - nLen) {
+        int j = 0;
+        while (j < nLen && haystack[i + j] == needle[j]) {
+            j++;
+        }
+        if (j == nLen) {
+            return i;
+        }
+        i++;
+    }
+    
+    return -1;
+}
