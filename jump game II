@@ -1,0 +1,27 @@
+int jump(int* nums, int numsSize) {
+    if (numsSize <= 1) return 0;
+    
+    int jumps = 0;
+    int current_end = 0;
+    int farthest = 0;
+    
+    for (int i = 0; i < numsSize - 1; i++) {
+        // Track the farthest index reachable from the current position
+        if (i + nums[i] > farthest) {
+            farthest = i + nums[i];
+        }
+        
+        // If we have reached the end of the current jump range
+        if (i == current_end) {
+            jumps++;
+            current_end = farthest;
+            
+            // If the current reach extends to or past the final index, we are done
+            if (current_end >= numsSize - 1) {
+                break;
+            }
+        }
+    }
+    
+    return jumps;
+}
