@@ -1,0 +1,57 @@
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+
+int compare(const void* a, const void* b) {
+    return (*(int*)a - *(int*)b);
+}
+
+void backtrack(int* nums, int numsSize, int* current, int currentSize, bool* used, int** results, int* returnSize) {
+    if (currentSize == numsSize) {
+        results[*returnSize] = (int*)malloc(numsSize * sizeof(int));
+        memcpy(results[*returnSize], current, numsSize * sizeof(int));
+        (*returnSize)++;
+        return;
+    }
+    
+    for (int i = 0; i < numsSize; i++) {
+        if (used[i]) {
+            continue;
+        }
+        // Skip duplicates: only use the first available element of identical values to avoid duplicate paths
+        if (i > 0 && nums[i] == nums[i - 1] && !used[i - 1]) {
+            continue;
+        }
+        
+        used[i] = true;
+        current[currentSize] = nums[i];
+        backtrack(nums, numsSize, current, currentSize + 1, used, results, returnSize);
+        used[i] = false;
+    }
+}
+
+int** permuteUnique(int* nums, int numsSize, int* returnSize, int** returnColumnSizes) {
+    // Sort the input to group duplicates together
+    qsort(nums, numsSize, sizeof(int), compare);
+    
+    // An upper bound estimation for maximum combinations (8! = 40320)
+    int maxCapacity = 40320; 
+    int** results = (int**)malloc(maxCapacity * sizeof(int*));
+    *returnColumnSizes = (int*)malloc(maxCapacity * sizeof(int));
+    *returnSize = 0;
+    
+    int* current = (int*)malloc(numsSize * sizeof(int));
+    bool* used = (bool*)calloc(numsSize, sizeof(bool));
+    
+    backtrack(nums, numsSize, current, 0, used, results, returnSize);
+    
+    // Resize column sizes to match the actual number of unique permutations found
+    *returnColumnSizes = (int*)realloc(*returnColumnSizes, (*returnSize) * sizeof(int));
+    for (int i = 0; i < *returnSize; i++) {
+        (*returnColumnSizes)[i] = numsSize;
+    }
+    
+    free(current);
+    free(used);
+    return results;
+}
