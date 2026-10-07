@@ -1,0 +1,32 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+int main() {
+    int n, m;
+    if (scanf("%d %d", &n, &m) != 2) return 1;
+
+    long long* diff = (long long*)calloc(n + 2, sizeof(long long));
+    if (!diff) return 1;
+
+    for (int i = 0; i < m; i++) {
+        int a, b;
+        long long k;
+        if (scanf("%d %d %lld", &a, &b, &k) != 3) break;
+        diff[a] += k;
+        diff[b + 1] -= k;
+    }
+
+    long long max_val = 0;
+    long long current = 0;
+    for (int i = 1; i <= n; i++) {
+        current += diff[i];
+        if (current > max_val) {
+            max_val = current;
+        }
+    }
+
+    printf("%lld\n", max_val);
+
+    free(diff);
+    return 0;
+}
