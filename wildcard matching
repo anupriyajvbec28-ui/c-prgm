@@ -1,0 +1,40 @@
+#include <stdbool.h>
+#include <string.h>
+
+bool isMatch(char* s, char* p) {
+    int sIdx = 0, pIdx = 0;
+    int matchIdx = 0, starIdx = -1;
+    int sLen = strlen(s);
+    int pLen = strlen(p);
+    
+    while (sIdx < sLen) {
+        // Advancing both pointers when characters match or pattern has '?'
+        if (pIdx < pLen && (p[pIdx] == '?' || p[pIdx] == s[sIdx])) {
+            sIdx++;
+            pIdx++;
+        }
+        // Found '*' wildcard, track its index and current match position
+        else if (pIdx < pLen && p[pIdx] == '*') {
+            starIdx = pIdx;
+            matchIdx = sIdx;
+            pIdx++;
+        }
+        // Last pattern pointer was '*', advance string pointer and backtrack pattern
+        else if (starIdx != -1) {
+            pIdx = starIdx + 1;
+            matchIdx++;
+            sIdx = matchIdx;
+        }
+        // Current character doesn't match and no '*' wildcard is active
+        else {
+            return false;
+        }
+    }
+    
+    // Check for remaining trailing '*' characters in the pattern
+    while (pIdx < pLen && p[pIdx] == '*') {
+        pIdx++;
+    }
+    
+    return pIdx == pLen;
+}
