@@ -1,0 +1,35 @@
+#include <stdlib.h>
+#include <string.h>
+
+char* countAndSay(int n) {
+    if (n <= 0) return "";
+    
+    char* current = (char*)malloc(2 * sizeof(char));
+    current[0] = '1';
+    current[1] = '\0';
+    
+    for (int i = 2; i <= n; i++) {
+        int len = strlen(current);
+        char* next = (char*)malloc((len * 2 + 1) * sizeof(char));
+        int next_idx = 0;
+        
+        int j = 0;
+        while (j < len) {
+            int count = 1;
+            while (j + 1 < len && current[j] == current[j + 1]) {
+                count++;
+                j++;
+            }
+            
+            next[next_idx++] = count + '0';
+            next[next_idx++] = current[j];
+            j++;
+        }
+        next[next_idx] = '\0';
+        
+        free(current);
+        current = next;
+    }
+    
+    return current;
+}
